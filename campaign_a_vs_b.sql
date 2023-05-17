@@ -1,10 +1,10 @@
 -- *****************************************
 -- campaign_a_vs_b.sql
--- version: 1.0
+-- version: 2.0
 -- Purpose: assess campaign performance
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
--- Date: 2023-05-16
+-- Date: 2023-05-17
 -- *****************************************
 WITH overall AS (
   SELECT
@@ -13,12 +13,13 @@ WITH overall AS (
     , CAST(NULL AS STRING) AS level_name
     , v.campaign_version
     , i.campaign
+    , ROUND(SUM(sales.spend), 2) AS campaign_revenue
     , COUNT(sales.customer_id) AS customer_cnt
-    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
+    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
   JOIN `acadia_growth.campaign_version_info` i ON i.campaign_version = v.campaign_version
@@ -33,12 +34,13 @@ WITH overall AS (
     , sgmt.description AS segment_name
     , v.campaign_version
     , i.campaign
+    , ROUND(SUM(sales.spend), 2) AS campaign_revenue
     , COUNT(sales.customer_id) AS customer_cnt
-    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
+    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v    ON v.customer_id = sales.customer_id
   JOIN `acadia_growth.campaign_version_info` i    ON i.campaign_version = v.campaign_version
@@ -54,12 +56,13 @@ WITH overall AS (
     , p.description AS profile_name
     , v.campaign_version
     , i.campaign
+    , ROUND(SUM(sales.spend), 2) AS campaign_revenue
     , COUNT(sales.customer_id) AS customer_cnt
-    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
+    , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
   JOIN `acadia_growth.campaign_version_info` i ON i.campaign_version = v.campaign_version
@@ -144,8 +147,8 @@ WITH overall AS (
 -- SELECT * FROM overall;
 -- SELECT * FROM by_segment;
 -- SELECT * FROM by_profile;
--- SELECT * FROM long_table ORDER BY profile_id NULLS FIRST, segment_id NULLS FIRST, campaign_version;
+ SELECT * FROM long_table ORDER BY profile_id NULLS FIRST, segment_id NULLS FIRST, campaign_version;
 -- SELECT * FROM med_a_vs_b
 --  ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='customer segment' THEN 2 ELSE 3 END, level_id;
-   SELECT * FROM avg_a_vs_b
-    ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='customer segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM avg_a_vs_b
+--  ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='customer segment' THEN 2 ELSE 3 END, level_id;
