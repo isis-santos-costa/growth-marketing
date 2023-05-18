@@ -1,10 +1,10 @@
 -- ******************************************************************************************************************************************************
 -- campaign_a_vs_b.sql
--- version: 2.1 (looking separately at positive vs negative revenue)
+-- version: 2.2 (growth marketing vocabulary: earned → lifted | precision: churned customer → churning customer)
 -- Purpose: compare performance of campaign A vs B
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
--- Date: 2023-05-17
+-- Date: 2023-05-18
 -- ******************************************************************************************************************************************************
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Campaign A vs B: assessing and comparing Growth Marketing performance
@@ -50,11 +50,11 @@ WITH overall AS (
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
     , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
-    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_earned_spend
+    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_lifted_spend
     , APPROX_QUANTILES(CASE WHEN sales.spend < 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_churned_spend
-    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS engaged_customer_cnt
-    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churned_customer_cnt
-    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_earned_revenue
+    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS lifted_customer_cnt
+    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
+    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
@@ -80,11 +80,11 @@ WITH overall AS (
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
     , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
-    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_earned_spend
+    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_lifted_spend
     , APPROX_QUANTILES(CASE WHEN sales.spend < 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_churned_spend
-    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS engaged_customer_cnt
-    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churned_customer_cnt
-    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_earned_revenue
+    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS lifted_customer_cnt
+    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
+    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v    ON v.customer_id = sales.customer_id
@@ -111,11 +111,11 @@ WITH overall AS (
     , MIN(sales.spend) min_spend
     , MAX(sales.spend) max_spend
     , ROUND(STDDEV(sales.spend) / AVG(sales.spend), 2) AS coeff_of_variation_spend
-    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_earned_spend
+    , APPROX_QUANTILES(CASE WHEN sales.spend > 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_lifted_spend
     , APPROX_QUANTILES(CASE WHEN sales.spend < 0 THEN sales.spend END, 2)[OFFSET(1)] AS med_churned_spend
-    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS engaged_customer_cnt
-    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churned_customer_cnt
-    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_earned_revenue
+    , COUNT(    CASE WHEN sales.spend > 0 THEN sales.customer_id END) AS lifted_customer_cnt
+    , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
+    , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
   FROM `acadia_growth.post_campaign_sales`   sales
   JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
@@ -148,23 +148,23 @@ WITH overall AS (
     , campaign_net_revenue_A
     , campaign_net_revenue_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN campaign_earned_revenue_A ELSE campaign_earned_revenue_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN campaign_earned_revenue_A ELSE campaign_earned_revenue_B END 
-      - 1) AS INT64) AS pct_earned_revenue_advantage_of_winning_campaign
-    , campaign_earned_revenue_A
-    , campaign_earned_revenue_B
+      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END / 
+      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END 
+      - 1) AS INT64) AS pct_lifted_revenue_advantage_of_winning_campaign
+    , campaign_lifted_revenue_A
+    , campaign_lifted_revenue_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN med_earned_spend_A ELSE med_earned_spend_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN med_earned_spend_A ELSE med_earned_spend_B END 
-      - 1) AS INT64) AS pct_med_earned_spend_advantage_of_winning_campaign
-    , med_earned_spend_A
-    , med_earned_spend_B
+      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END / 
+      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END 
+      - 1) AS INT64) AS pct_med_lifted_spend_advantage_of_winning_campaign
+    , med_lifted_spend_A
+    , med_lifted_spend_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN engaged_customer_cnt_A ELSE engaged_customer_cnt_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN engaged_customer_cnt_A ELSE engaged_customer_cnt_B END 
-      - 1) AS INT64) AS pct_engaged_customer_cnt_advantage_of_winning_campaign
-    , engaged_customer_cnt_A
-    , engaged_customer_cnt_B
+      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END / 
+      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END 
+      - 1) AS INT64) AS pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , lifted_customer_cnt_A
+    , lifted_customer_cnt_B
     , - CAST(100.0 * (
       CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END / 
       CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END 
@@ -178,11 +178,11 @@ WITH overall AS (
     , med_churned_spend_A
     , med_churned_spend_B
     , - CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN churned_customer_cnt_A ELSE churned_customer_cnt_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN churned_customer_cnt_A ELSE churned_customer_cnt_B END 
-      - 1) AS INT64) AS pct_churned_customer_cnt_advantage_of_winning_campaign
-    , churned_customer_cnt_A
-    , churned_customer_cnt_B
+      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END / 
+      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END 
+      - 1) AS INT64) AS pct_churning_customer_cnt_advantage_of_winning_campaign
+    , churning_customer_cnt_A
+    , churning_customer_cnt_B
   FROM (
     SELECT
     CASE 
@@ -194,22 +194,22 @@ WITH overall AS (
     , level_name
     , campaign_version
     , campaign_net_revenue
-    , campaign_earned_revenue
-    , med_earned_spend
-    , engaged_customer_cnt
+    , campaign_lifted_revenue
+    , med_lifted_spend
+    , lifted_customer_cnt
     , campaign_churned_revenue
     , med_churned_spend
-    , churned_customer_cnt
+    , churning_customer_cnt
   FROM long_table
   )
   PIVOT (
       MAX(campaign_net_revenue)     AS campaign_net_revenue
-    , MAX(campaign_earned_revenue)  AS campaign_earned_revenue
-    , MAX(med_earned_spend)         AS med_earned_spend
-    , MAX(engaged_customer_cnt)     AS engaged_customer_cnt
+    , MAX(campaign_lifted_revenue)  AS campaign_lifted_revenue
+    , MAX(med_lifted_spend)         AS med_lifted_spend
+    , MAX(lifted_customer_cnt)     AS lifted_customer_cnt
     , MAX(campaign_churned_revenue) AS campaign_churned_revenue
     , MAX(med_churned_spend)        AS med_churned_spend
-    , MAX(churned_customer_cnt)     AS churned_customer_cnt
+    , MAX(churning_customer_cnt)     AS churning_customer_cnt
     FOR campaign_version in ('A', 'B')
   )
 )
@@ -226,12 +226,12 @@ WITH overall AS (
     , pct_revenue_advantage_of_winning_campaign
     , campaign_net_revenue_A
     , campaign_net_revenue_B
-    , pct_earned_revenue_advantage_of_winning_campaign
-    , pct_med_earned_spend_advantage_of_winning_campaign
-    , pct_engaged_customer_cnt_advantage_of_winning_campaign
+    , pct_lifted_revenue_advantage_of_winning_campaign
+    , pct_med_lifted_spend_advantage_of_winning_campaign
+    , pct_lifted_customer_cnt_advantage_of_winning_campaign
     , pct_churned_revenue_advantage_of_winning_campaign
     , pct_med_churned_spend_advantage_of_winning_campaign
-    , pct_churned_customer_cnt_advantage_of_winning_campaign
+    , pct_churning_customer_cnt_advantage_of_winning_campaign
   FROM a_vs_b_full
 )
 
