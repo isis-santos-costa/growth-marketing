@@ -1,10 +1,10 @@
 -- ******************************************************************************************************************************************************
 -- campaign_a_vs_b.sql
--- version: 2.2 (growth marketing vocabulary: earned → lifted | precision: churned customer → churning customer)
+-- version: 2.3 (including campaign base customer count)
 -- Purpose: compare performance of campaign A vs B
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
--- Date: 2023-05-18
+-- Date: 2023-05-19
 -- ******************************************************************************************************************************************************
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Campaign A vs B: assessing and comparing Growth Marketing performance
@@ -41,10 +41,11 @@ WITH overall AS (
     0 AS segment_id
     , 0 AS profile_id
     , 'OVERALL' AS level_name
+    , COUNT(c.id) AS campaign_base_customer_cnt
     , v.campaign_version
     , i.campaign
     , ROUND(SUM(sales.spend), 2) AS campaign_net_revenue
-    , COUNT(sales.customer_id) AS customer_cnt
+    , COUNT(sales.customer_id) AS active_customer_cnt
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
@@ -56,10 +57,10 @@ WITH overall AS (
     , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
     , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
-  FROM `acadia_growth.post_campaign_sales`   sales
-  JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
-  JOIN `acadia_growth.campaign_version_info` i ON i.campaign_version = v.campaign_version
-  JOIN `acadia_growth.customer`              c ON c.id = sales.customer_id
+  FROM `acadia_growth.customer`                 c
+  LEFT JOIN `acadia_growth.campaign_version`    v     ON v.customer_id = c.id
+  LEFT JOIN `acadia_growth.post_campaign_sales` sales ON sales.customer_id = c.id
+  JOIN `acadia_growth.campaign_version_info`    i     ON i.campaign_version = v.campaign_version  
   GROUP BY campaign_version, campaign
 )
 
@@ -71,10 +72,11 @@ WITH overall AS (
     c.segment_id
     , NULL AS profile_id
     , sgmt.description AS segment_name
+    , COUNT(c.id) AS campaign_base_customer_cnt
     , v.campaign_version
     , i.campaign
     , ROUND(SUM(sales.spend), 2) AS campaign_net_revenue
-    , COUNT(sales.customer_id) AS customer_cnt
+    , COUNT(sales.customer_id) AS active_customer_cnt
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
@@ -86,11 +88,11 @@ WITH overall AS (
     , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
     , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
-  FROM `acadia_growth.post_campaign_sales`   sales
-  JOIN `acadia_growth.campaign_version`      v    ON v.customer_id = sales.customer_id
-  JOIN `acadia_growth.campaign_version_info` i    ON i.campaign_version = v.campaign_version
-  JOIN `acadia_growth.customer`              c    ON c.id = sales.customer_id
-  JOIN `acadia_growth.segment`               sgmt ON sgmt.id = c.segment_id
+  FROM `acadia_growth.customer`                 c
+  LEFT JOIN `acadia_growth.campaign_version`    v     ON v.customer_id = c.id
+  LEFT JOIN `acadia_growth.post_campaign_sales` sales ON sales.customer_id = c.id
+  JOIN `acadia_growth.segment`                  sgmt  ON sgmt.id = c.segment_id
+  JOIN `acadia_growth.campaign_version_info`    i     ON i.campaign_version = v.campaign_version
   GROUP BY c.segment_id, segment_name, campaign_version, campaign
 )
 
@@ -102,10 +104,11 @@ WITH overall AS (
     NULL AS segment_id
     , c.profile_id
     , p.description AS profile_name
+    , COUNT(c.id) AS campaign_base_customer_cnt
     , v.campaign_version
     , i.campaign
     , ROUND(SUM(sales.spend), 2) AS campaign_net_revenue
-    , COUNT(sales.customer_id) AS customer_cnt
+    , COUNT(sales.customer_id) AS active_customer_cnt
     , ROUND(AVG(sales.spend), 2) AS avg_spend
     , APPROX_QUANTILES(sales.spend, 2)[OFFSET(1)] AS med_spend
     , MIN(sales.spend) min_spend
@@ -117,11 +120,11 @@ WITH overall AS (
     , COUNT(    CASE WHEN sales.spend < 0 THEN sales.customer_id END) AS churning_customer_cnt
     , ROUND(SUM(CASE WHEN sales.spend > 0 THEN sales.spend END), 2) AS campaign_lifted_revenue
     , ROUND(SUM(CASE WHEN sales.spend < 0 THEN sales.spend END), 2) AS campaign_churned_revenue
-  FROM `acadia_growth.post_campaign_sales`   sales
-  JOIN `acadia_growth.campaign_version`      v ON v.customer_id = sales.customer_id
-  JOIN `acadia_growth.campaign_version_info` i ON i.campaign_version = v.campaign_version
-  JOIN `acadia_growth.customer`              c ON c.id = sales.customer_id
-  JOIN `acadia_growth.profile`               p ON p.id = c.profile_id
+  FROM `acadia_growth.customer`                 c
+  LEFT JOIN `acadia_growth.post_campaign_sales` sales ON sales.customer_id = c.id
+  LEFT JOIN `acadia_growth.campaign_version`    v     ON v.customer_id = c.id
+  JOIN `acadia_growth.profile`                  p     ON p.id = c.profile_id
+  JOIN `acadia_growth.campaign_version_info`    i     ON i.campaign_version = v.campaign_version
   WHERE c.profile_id IS NOT NULL
   GROUP BY c.profile_id, profile_name, campaign_version, campaign
 )
@@ -143,6 +146,9 @@ WITH overall AS (
     level_of_analysis
     , level_id
     , level_name
+    , (campaign_base_customer_cnt_A + campaign_base_customer_cnt_B) AS campaign_base_customer_cnt
+    , 100.0 * campaign_base_customer_cnt_A / (campaign_base_customer_cnt_A + campaign_base_customer_cnt_B) AS pct_customer_A
+    , 100.0 * campaign_base_customer_cnt_B / (campaign_base_customer_cnt_A + campaign_base_customer_cnt_B) AS pct_customer_B
     , CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN 'A | 99% Off' ELSE 'B | BOGO' END AS winning_campaign
     , CAST(ABS(100.0 * (campaign_net_revenue_A / campaign_net_revenue_B - 1)) AS INT64) AS pct_revenue_advantage_of_winning_campaign
     , campaign_net_revenue_A
@@ -192,6 +198,7 @@ WITH overall AS (
     END AS level_of_analysis
     , COALESCE(segment_id, profile_id) AS level_id
     , level_name
+    , campaign_base_customer_cnt
     , campaign_version
     , campaign_net_revenue
     , campaign_lifted_revenue
@@ -203,13 +210,14 @@ WITH overall AS (
   FROM long_table
   )
   PIVOT (
-      MAX(campaign_net_revenue)     AS campaign_net_revenue
-    , MAX(campaign_lifted_revenue)  AS campaign_lifted_revenue
-    , MAX(med_lifted_spend)         AS med_lifted_spend
-    , MAX(lifted_customer_cnt)     AS lifted_customer_cnt
-    , MAX(campaign_churned_revenue) AS campaign_churned_revenue
-    , MAX(med_churned_spend)        AS med_churned_spend
-    , MAX(churning_customer_cnt)     AS churning_customer_cnt
+      MAX(campaign_base_customer_cnt) AS campaign_base_customer_cnt
+    , MAX(campaign_net_revenue)       AS campaign_net_revenue
+    , MAX(campaign_lifted_revenue)    AS campaign_lifted_revenue
+    , MAX(med_lifted_spend)           AS med_lifted_spend
+    , MAX(lifted_customer_cnt)        AS lifted_customer_cnt
+    , MAX(campaign_churned_revenue)   AS campaign_churned_revenue
+    , MAX(med_churned_spend)          AS med_churned_spend
+    , MAX(churning_customer_cnt)      AS churning_customer_cnt
     FOR campaign_version in ('A', 'B')
   )
 )
@@ -222,6 +230,9 @@ WITH overall AS (
     level_of_analysis
     , level_id
     , level_name
+    , campaign_base_customer_cnt
+    , pct_customer_A
+    , pct_customer_B
     , winning_campaign
     , pct_revenue_advantage_of_winning_campaign
     , campaign_net_revenue_A
@@ -242,6 +253,6 @@ WITH overall AS (
 -- SELECT * FROM by_segment;
 -- SELECT * FROM by_profile;
 -- SELECT * FROM long_table ORDER BY profile_id NULLS FIRST, segment_id NULLS FIRST, campaign_version;
--- SELECT * FROM a_vs_b_full ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
-   SELECT * FROM a_vs_b      ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+   SELECT * FROM a_vs_b_full ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b      ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
