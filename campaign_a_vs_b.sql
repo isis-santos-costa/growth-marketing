@@ -1,6 +1,6 @@
 -- ******************************************************************************************************************************************************
 -- campaign_a_vs_b.sql
--- version: 2.3 (including campaign base customer count)
+-- version: 2.4 (standardizing results for unbalanced subsets [Segments: 'Elite Customers' (75/25), Infrequent Customers' (25/75)])
 -- Purpose: compare performance of campaign A vs B
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
@@ -32,6 +32,60 @@
 -- "Analytics Presentation Questions & Data.xlsx"
 -- https://docs.google.com/spreadsheets/d/1H8AvUnwQO8APc5vr6cfUISoxNP9Sx38o/edit?usp=sharing&ouid=106534574815446903983&rtpof=true&sd=true
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Parameter • % Tolerance to split unbalance in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+DECLARE pct_tolerance_to_split_unbalance FLOAT64 DEFAULT 5;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 1 • Standardizing factor for subsets with unbalanced split in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_factor(pct_customer FLOAT64, pct_tolerance_to_split_unbalance FLOAT64) AS (
+  CASE WHEN ABS(50 - pct_customer) > pct_tolerance_to_split_unbalance THEN (50 / pct_customer) ELSE 1 END
+);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 2 • Standardized values (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_value(pct_customer FLOAT64, pct_tolerance_to_split_unbalance FLOAT64, original_value FLOAT64, level_id INT64) AS (
+  CASE WHEN level_id = 0 THEN NULL
+  ELSE std_factor(pct_customer, pct_tolerance_to_split_unbalance) * original_value END
+);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 3 • Winning Campaign after Standardization (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_win(pct_customer_A FLOAT64, pct_customer_B FLOAT64, pct_tolerance_to_split_unbalance FLOAT64
+  , campaign_net_revenue_A FLOAT64, campaign_net_revenue_B FLOAT64, level_id INT64) AS (
+    CASE 
+      WHEN level_id = 0 THEN NULL
+      WHEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, level_id) > 
+           std_value(pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_B, level_id) THEN 'A | 99% Off' 
+           ELSE 'B | BOGO' END
+);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 4 • Standardized % advantage of Winning Campaign (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_pct_advantage(
+  pct_customer_A FLOAT64, pct_customer_B FLOAT64, pct_tolerance_to_split_unbalance FLOAT64
+  , campaign_net_revenue_A FLOAT64, campaign_net_revenue_B FLOAT64
+  , original_value_A FLOAT64, original_value_B FLOAT64
+  , level_id INT64) AS (
+  CAST(100.0 * (
+      CASE 
+        WHEN std_win(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B, level_id) like 'A%'
+            THEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, original_value_A, level_id) 
+            ELSE std_value(pct_customer_B, pct_tolerance_to_split_unbalance, original_value_B, level_id) 
+            END / 
+      CASE 
+        WHEN std_win(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B, level_id) like 'B%'
+            THEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, original_value_A, level_id) 
+            ELSE std_value(pct_customer_B, pct_tolerance_to_split_unbalance, original_value_B, level_id) 
+            END 
+      - 1) AS INT64)
+);
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 1 • Results of campaigns A and B | Overall
@@ -139,9 +193,9 @@ WITH overall AS (
 )
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
--- CTE 5 • Results of campaigns A and B | Defining the Winning Campaign by Net Revenue | Comparing to the other by other criteria | All data side by side
+-- CTE 5 • Results of campaigns A and B | Winning Campaign defined by Net Revenue | Compared also by other criteria | Wide Table
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
-, a_vs_b_full AS (
+, a_vs_b_raw AS (
   SELECT
     level_of_analysis
     , level_id
@@ -154,38 +208,38 @@ WITH overall AS (
     , campaign_net_revenue_A
     , campaign_net_revenue_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN campaign_lifted_revenue_A ELSE campaign_lifted_revenue_B END 
       - 1) AS INT64) AS pct_lifted_revenue_advantage_of_winning_campaign
     , campaign_lifted_revenue_A
     , campaign_lifted_revenue_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END 
       - 1) AS INT64) AS pct_med_lifted_spend_advantage_of_winning_campaign
     , med_lifted_spend_A
     , med_lifted_spend_B
     , CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN lifted_customer_cnt_A ELSE lifted_customer_cnt_B END 
       - 1) AS INT64) AS pct_lifted_customer_cnt_advantage_of_winning_campaign
     , lifted_customer_cnt_A
     , lifted_customer_cnt_B
     , - CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN campaign_churned_revenue_A ELSE campaign_churned_revenue_B END 
       - 1) AS INT64) AS pct_churned_revenue_advantage_of_winning_campaign
     , campaign_churned_revenue_A
     , campaign_churned_revenue_B
     , - CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END 
       - 1) AS INT64) AS pct_med_churned_spend_advantage_of_winning_campaign
     , med_churned_spend_A
     , med_churned_spend_B
     , - CAST(100.0 * (
-      CASE WHEN campaign_net_revenue_A > campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END / 
-      CASE WHEN campaign_net_revenue_A < campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END 
+      CASE WHEN campaign_net_revenue_A >= campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END / 
+      CASE WHEN campaign_net_revenue_A <  campaign_net_revenue_B THEN churning_customer_cnt_A ELSE churning_customer_cnt_B END 
       - 1) AS INT64) AS pct_churning_customer_cnt_advantage_of_winning_campaign
     , churning_customer_cnt_A
     , churning_customer_cnt_B
@@ -223,7 +277,80 @@ WITH overall AS (
 )
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
--- CTE 6 • OUTPUT: Results of campaigns A and B | Defining the Winning Campaign by Net Revenue | Comparing to the other by other criteria | Summary
+-- CTE 6 • Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | Compared also by other criteria | Wide Table
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Note on STANDARDIZATION
+-- This CTE standardizes to 50/50 results for customer subsets that were unbalanced in the actual experimentation.
+-- Unbalanced subsets: segments 'Elite Customers' (75/25), and Infrequent Customers' (25/75)
+-- Each subset is large enough, so that the adjustment is performed by assuming random distribution.
+-- The unbalanced split are thus scaled to 50/50 →  e.g. for A/B = 75/25 → Std. Net Revenue A = (Net Revenue / 75 × 50)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Affected fields & New fiels
+-- ⚠️ MOST IMPORTANT: WINNING CAMPAIGN (as it is a function of an extensive variable)
+-- Overall totals of extensive variables are calculated as the sum of STD values for all segments (as -opposed to profiles- segments cover all customers)
+-- Extensive variables are adjusted to a standardized version: net revenue, lifted/churned revenue, lifted/churning customer count.
+-- Intensive variables (in case, medians) are kept unchanged, as they alone reflect a whole group.
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Tolerance defined on the top of the query → pct_tolerance_to_split_unbalance
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+, a_vs_b_standardized AS (
+  SELECT
+    level_of_analysis
+    , level_id
+    , level_name
+    , campaign_base_customer_cnt
+    , pct_customer_A
+    , pct_customer_B
+    , std_win(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B, level_id) 
+        AS winning_campaign
+    , std_pct_advantage(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B
+        , campaign_net_revenue_A, campaign_net_revenue_B, level_id) AS std_pct_revenue_advantage_of_winning_campaign
+    , ROUND(std_value(pct_customer_A, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, level_id), 2) AS std_campaign_net_revenue_A
+    , ROUND(std_value(pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_B, level_id), 2) AS std_campaign_net_revenue_B
+    , pct_revenue_advantage_of_winning_campaign
+    , campaign_net_revenue_A
+    , campaign_net_revenue_B
+    , std_pct_advantage(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B
+        , campaign_lifted_revenue_A, campaign_lifted_revenue_B, level_id) AS std_pct_lifted_revenue_advantage_of_winning_campaign
+    , ROUND(std_value(pct_customer_A, pct_tolerance_to_split_unbalance, campaign_lifted_revenue_A, level_id), 2) AS std_campaign_lifted_revenue_A
+    , ROUND(std_value(pct_customer_B, pct_tolerance_to_split_unbalance, campaign_lifted_revenue_B, level_id), 2) AS std_campaign_lifted_revenue_B
+    , pct_lifted_revenue_advantage_of_winning_campaign
+    , campaign_lifted_revenue_A
+    , campaign_lifted_revenue_B
+    , pct_med_lifted_spend_advantage_of_winning_campaign
+    , med_lifted_spend_A
+    , med_lifted_spend_B
+    , std_pct_advantage(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B
+        , lifted_customer_cnt_A, lifted_customer_cnt_B, level_id) AS std_pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , CAST(std_value(pct_customer_A, pct_tolerance_to_split_unbalance, lifted_customer_cnt_A, level_id) AS INT64) AS std_lifted_customer_cnt_A
+    , CAST(std_value(pct_customer_B, pct_tolerance_to_split_unbalance, lifted_customer_cnt_B, level_id) AS INT64) AS std_lifted_customer_cnt_B
+    , pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , lifted_customer_cnt_A
+    , lifted_customer_cnt_B
+    , std_pct_advantage(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B
+        , campaign_churned_revenue_A, campaign_churned_revenue_B, level_id) AS std_pct_churned_revenue_advantage_of_winning_campaign
+    , ROUND(std_value(pct_customer_A, pct_tolerance_to_split_unbalance, campaign_churned_revenue_A, level_id), 2) AS std_campaign_churned_revenue_A
+    , ROUND(std_value(pct_customer_B, pct_tolerance_to_split_unbalance, campaign_churned_revenue_B, level_id), 2) AS std_campaign_churned_revenue_B
+    , pct_churned_revenue_advantage_of_winning_campaign
+    , campaign_churned_revenue_A
+    , campaign_churned_revenue_B
+    , pct_med_churned_spend_advantage_of_winning_campaign
+    , med_churned_spend_A
+    , med_churned_spend_B
+    , std_pct_advantage(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B
+        , churning_customer_cnt_A, churning_customer_cnt_B, level_id) AS std_pct_churning_customer_cnt_advantage_of_winning_campaign
+    , CAST(std_value(pct_customer_A, pct_tolerance_to_split_unbalance, churning_customer_cnt_A, level_id) AS INT64) AS std_churning_customer_cnt_A
+    , CAST(std_value(pct_customer_B, pct_tolerance_to_split_unbalance, churning_customer_cnt_B, level_id) AS INT64) AS std_churning_customer_cnt_B
+    , pct_churning_customer_cnt_advantage_of_winning_campaign
+    , churning_customer_cnt_A
+    , churning_customer_cnt_B
+  FROM a_vs_b_raw
+)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CTE 7 • OUTPUT: Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | Clean version, STD values only → conclusive
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- ⚠️⚠️⚠️ MISSING → INCLUDE ADJUSTMENT FOR OVERALL ⚠️⚠️⚠️
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 , a_vs_b AS (
   SELECT
@@ -234,16 +361,28 @@ WITH overall AS (
     , pct_customer_A
     , pct_customer_B
     , winning_campaign
-    , pct_revenue_advantage_of_winning_campaign
-    , campaign_net_revenue_A
-    , campaign_net_revenue_B
-    , pct_lifted_revenue_advantage_of_winning_campaign
+    , std_pct_revenue_advantage_of_winning_campaign
+    , std_campaign_net_revenue_A
+    , std_campaign_net_revenue_B
+    , std_pct_lifted_revenue_advantage_of_winning_campaign
+    , std_campaign_lifted_revenue_A
+    , std_campaign_lifted_revenue_B
     , pct_med_lifted_spend_advantage_of_winning_campaign
-    , pct_lifted_customer_cnt_advantage_of_winning_campaign
-    , pct_churned_revenue_advantage_of_winning_campaign
+    , med_lifted_spend_A
+    , med_lifted_spend_B
+    , std_pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , std_lifted_customer_cnt_A
+    , std_lifted_customer_cnt_B
+    , std_pct_churned_revenue_advantage_of_winning_campaign
+    , std_campaign_churned_revenue_A
+    , std_campaign_churned_revenue_B
     , pct_med_churned_spend_advantage_of_winning_campaign
-    , pct_churning_customer_cnt_advantage_of_winning_campaign
-  FROM a_vs_b_full
+    , med_churned_spend_A
+    , med_churned_spend_B
+    , std_pct_churning_customer_cnt_advantage_of_winning_campaign
+    , std_churning_customer_cnt_A
+    , std_churning_customer_cnt_B
+  FROM a_vs_b_standardized
 )
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -253,6 +392,7 @@ WITH overall AS (
 -- SELECT * FROM by_segment;
 -- SELECT * FROM by_profile;
 -- SELECT * FROM long_table ORDER BY profile_id NULLS FIRST, segment_id NULLS FIRST, campaign_version;
-   SELECT * FROM a_vs_b_full ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
--- SELECT * FROM a_vs_b      ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b_raw          ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b_standardized ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+   SELECT * FROM a_vs_b              ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
