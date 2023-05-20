@@ -1,6 +1,6 @@
 -- ******************************************************************************************************************************************************
 -- campaign_a_vs_b.sql
--- version: 2.5 (adding OVERALL total for STANDARDIZED values)
+-- version: 2.5.1 (patch: as standardizing changes the winning campaign, pct_advantage must be revised even for intensive variables)
 -- Purpose: compare performance of campaign A vs B
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
@@ -427,7 +427,10 @@ WITH overall AS (
       - 1) AS INT64) AS std_pct_lifted_revenue_advantage_of_winning_campaign
     , std_campaign_lifted_revenue_A
     , std_campaign_lifted_revenue_B
-    , pct_med_lifted_spend_advantage_of_winning_campaign
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN med_lifted_spend_A ELSE med_lifted_spend_B END 
+      - 1) AS INT64) AS pct_med_lifted_spend_advantage_of_winning_campaign
     , med_lifted_spend_A
     , med_lifted_spend_B
     , CAST(100.0 * (
@@ -436,16 +439,19 @@ WITH overall AS (
       - 1) AS INT64) AS std_pct_lifted_customer_cnt_advantage_of_winning_campaign
     , std_lifted_customer_cnt_A
     , std_lifted_customer_cnt_B 
-    , CAST(100.0 * (
+    , - CAST(100.0 * (
       CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_campaign_churned_revenue_A ELSE std_campaign_churned_revenue_B END / 
       CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_campaign_churned_revenue_A ELSE std_campaign_churned_revenue_B END 
       - 1) AS INT64) AS std_pct_churned_revenue_advantage_of_winning_campaign
     , std_campaign_churned_revenue_A
     , std_campaign_churned_revenue_B
-    , pct_med_churned_spend_advantage_of_winning_campaign
+    , - CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN med_churned_spend_A ELSE med_churned_spend_B END 
+      - 1) AS INT64) AS pct_med_churned_spend_advantage_of_winning_campaign
     , med_churned_spend_A
     , med_churned_spend_B    
-    , CAST(100.0 * (
+    , - CAST(100.0 * (
       CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_churning_customer_cnt_A ELSE std_churning_customer_cnt_B END / 
       CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_churning_customer_cnt_A ELSE std_churning_customer_cnt_B END 
       - 1) AS INT64) AS std_pct_churning_customer_cnt_advantage_of_winning_campaign
