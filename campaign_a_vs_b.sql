@@ -1,6 +1,6 @@
 -- ******************************************************************************************************************************************************
 -- campaign_a_vs_b.sql
--- version: 2.4 (standardizing results for unbalanced subsets [Segments: 'Elite Customers' (75/25), Infrequent Customers' (25/75)])
+-- version: 2.5 (adding OVERALL total for STANDARDIZED values)
 -- Purpose: compare performance of campaign A vs B
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
@@ -348,11 +348,9 @@ WITH overall AS (
 )
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
--- CTE 7 • OUTPUT: Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | Clean version, STD values only → conclusive
+-- CTE 7 • Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | with OVERALL total of STD values
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
--- ⚠️⚠️⚠️ MISSING → INCLUDE ADJUSTMENT FOR OVERALL ⚠️⚠️⚠️
----------------------------------------------------------------------------------------------------------------------------------------------------------
-, a_vs_b AS (
+, a_vs_b_std_w_overall AS (
   SELECT
     level_of_analysis
     , level_id
@@ -362,27 +360,98 @@ WITH overall AS (
     , pct_customer_B
     , winning_campaign
     , std_pct_revenue_advantage_of_winning_campaign
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_net_revenue_A END) OVER () 
+           ELSE std_campaign_net_revenue_A END 
+           AS std_campaign_net_revenue_A
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_net_revenue_B END) OVER () 
+           ELSE std_campaign_net_revenue_B END 
+           AS std_campaign_net_revenue_B 
+    , std_pct_lifted_revenue_advantage_of_winning_campaign
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_lifted_revenue_A END) OVER () 
+           ELSE std_campaign_lifted_revenue_A END 
+           AS std_campaign_lifted_revenue_A
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_lifted_revenue_B END) OVER () 
+           ELSE std_campaign_lifted_revenue_B END 
+           AS std_campaign_lifted_revenue_B
+    , pct_med_lifted_spend_advantage_of_winning_campaign
+    , med_lifted_spend_A
+    , med_lifted_spend_B
+    , std_pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_lifted_customer_cnt_A END) OVER () 
+           ELSE std_lifted_customer_cnt_A END 
+           AS std_lifted_customer_cnt_A
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_lifted_customer_cnt_B END) OVER () 
+           ELSE std_lifted_customer_cnt_B END 
+           AS std_lifted_customer_cnt_B
+    , std_pct_churned_revenue_advantage_of_winning_campaign
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_churned_revenue_A END) OVER () 
+           ELSE std_campaign_churned_revenue_A END 
+           AS std_campaign_churned_revenue_A
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_campaign_churned_revenue_B END) OVER () 
+           ELSE std_campaign_churned_revenue_B END 
+           AS std_campaign_churned_revenue_B
+    , pct_med_churned_spend_advantage_of_winning_campaign
+    , med_churned_spend_A
+    , med_churned_spend_B
+    , std_pct_churning_customer_cnt_advantage_of_winning_campaign
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_churning_customer_cnt_A END) OVER () 
+           ELSE std_churning_customer_cnt_A END 
+           AS std_churning_customer_cnt_A
+    , CASE WHEN level_id = 0 THEN SUM(CASE WHEN level_of_analysis='segment' THEN std_churning_customer_cnt_B END) OVER () 
+           ELSE std_churning_customer_cnt_B END 
+           AS std_churning_customer_cnt_B
+  FROM a_vs_b_standardized
+)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CTE 8 • OUTPUT: Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | with OVERALL total and % of STD values
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+, a_vs_b AS (
+  SELECT
+    level_of_analysis
+    , level_id
+    , level_name
+    , campaign_base_customer_cnt
+    , pct_customer_A
+    , pct_customer_B
+    , CASE WHEN std_campaign_net_revenue_A > std_campaign_net_revenue_B THEN 'A | 99% Off' ELSE 'B | BOGO' END AS winning_campaign
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_campaign_net_revenue_A ELSE std_campaign_net_revenue_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_campaign_net_revenue_A ELSE std_campaign_net_revenue_B END 
+      - 1) AS INT64) AS std_pct_revenue_advantage_of_winning_campaign
     , std_campaign_net_revenue_A
     , std_campaign_net_revenue_B
-    , std_pct_lifted_revenue_advantage_of_winning_campaign
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_campaign_lifted_revenue_A ELSE std_campaign_lifted_revenue_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_campaign_lifted_revenue_A ELSE std_campaign_lifted_revenue_B END 
+      - 1) AS INT64) AS std_pct_lifted_revenue_advantage_of_winning_campaign
     , std_campaign_lifted_revenue_A
     , std_campaign_lifted_revenue_B
     , pct_med_lifted_spend_advantage_of_winning_campaign
     , med_lifted_spend_A
     , med_lifted_spend_B
-    , std_pct_lifted_customer_cnt_advantage_of_winning_campaign
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_lifted_customer_cnt_A ELSE std_lifted_customer_cnt_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_lifted_customer_cnt_A ELSE std_lifted_customer_cnt_B END 
+      - 1) AS INT64) AS std_pct_lifted_customer_cnt_advantage_of_winning_campaign
     , std_lifted_customer_cnt_A
-    , std_lifted_customer_cnt_B
-    , std_pct_churned_revenue_advantage_of_winning_campaign
+    , std_lifted_customer_cnt_B 
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_campaign_churned_revenue_A ELSE std_campaign_churned_revenue_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_campaign_churned_revenue_A ELSE std_campaign_churned_revenue_B END 
+      - 1) AS INT64) AS std_pct_churned_revenue_advantage_of_winning_campaign
     , std_campaign_churned_revenue_A
     , std_campaign_churned_revenue_B
     , pct_med_churned_spend_advantage_of_winning_campaign
     , med_churned_spend_A
-    , med_churned_spend_B
-    , std_pct_churning_customer_cnt_advantage_of_winning_campaign
+    , med_churned_spend_B    
+    , CAST(100.0 * (
+      CASE WHEN std_campaign_net_revenue_A >= std_campaign_net_revenue_B THEN std_churning_customer_cnt_A ELSE std_churning_customer_cnt_B END / 
+      CASE WHEN std_campaign_net_revenue_A <  std_campaign_net_revenue_B THEN std_churning_customer_cnt_A ELSE std_churning_customer_cnt_B END 
+      - 1) AS INT64) AS std_pct_churning_customer_cnt_advantage_of_winning_campaign
     , std_churning_customer_cnt_A
     , std_churning_customer_cnt_B
-  FROM a_vs_b_standardized
+  FROM a_vs_b_std_w_overall
 )
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -392,7 +461,8 @@ WITH overall AS (
 -- SELECT * FROM by_segment;
 -- SELECT * FROM by_profile;
 -- SELECT * FROM long_table ORDER BY profile_id NULLS FIRST, segment_id NULLS FIRST, campaign_version;
--- SELECT * FROM a_vs_b_raw          ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
--- SELECT * FROM a_vs_b_standardized ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
-   SELECT * FROM a_vs_b              ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b_raw           ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b_standardized  ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+-- SELECT * FROM a_vs_b_std_w_overall ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
+   SELECT * FROM a_vs_b               ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
