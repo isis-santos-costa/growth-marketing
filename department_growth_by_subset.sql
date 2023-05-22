@@ -1,6 +1,6 @@
 -- ******************************************************************************************************************************************************
 -- department_growth_by_subset.sql
--- version: 1.0
+-- version: 1.1 (including department name)
 -- Purpose: assess department growth | by customer subsets segment and profile (separatedly)
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
@@ -9,6 +9,7 @@
 WITH by_segment AS (
 SELECT 
   department_id
+  , department_name
   , 'segment' AS subset_type
   , segment_id AS subset_id
   , segment_name AS subset_name
@@ -19,6 +20,7 @@ SELECT
 FROM (
   SELECT  
     sales.department_id
+    , d.description AS department_name
     , sales.segment_id
     , sgmt.description AS segment_name
     , sales.year
@@ -26,6 +28,8 @@ FROM (
   FROM `acadia-growth.acadia_growth.department_annual_sales` sales
   JOIN `acadia-growth.acadia_growth.segment` sgmt
     ON sgmt.id = sales.segment_id
+  JOIN `acadia-growth.acadia_growth.department` d
+    ON d.id = sales.department_id
   )
   PIVOT(
     SUM(sales) AS sales
@@ -36,6 +40,7 @@ FROM (
 , by_profile AS (
 SELECT 
   department_id
+  , department_name
   , 'profile' AS subset_type
   , profile_id AS subset_id
   , profile_name AS subset_name
@@ -46,6 +51,7 @@ SELECT
 FROM (
   SELECT  
     sales.department_id
+    , d.description AS department_name
     , sales.profile_id
     , p.description AS profile_name
     , sales.year
@@ -53,6 +59,8 @@ FROM (
   FROM `acadia-growth.acadia_growth.department_annual_sales` sales
   JOIN `acadia-growth.acadia_growth.profile` p
     ON p.id = sales.profile_id
+  JOIN `acadia-growth.acadia_growth.department` d
+    ON d.id = sales.department_id
   )
   PIVOT(
     SUM(sales) AS sales
