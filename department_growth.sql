@@ -1,6 +1,6 @@
 -- ******************************************************************************************************************************************************
 -- department_growth.sql
--- version: 1.2 (department label for dashboard)
+-- version: 1.2 (department label for dashboard) [correctly labeling the commit]
 -- Purpose: assess department growth
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
