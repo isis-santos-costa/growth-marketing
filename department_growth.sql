@@ -1,19 +1,21 @@
 -- ******************************************************************************************************************************************************
 -- department_growth.sql
--- version: 1.1 (department description)
+-- version: 1.2 (department label for dashboard)
 -- Purpose: assess department growth
 -- Dialect: BigQuery
 -- Author: Isis Santos Costa
 -- Date: 2023-05-21
 -- ******************************************************************************************************************************************************
 SELECT 
-  department_id
+    CONCAT(department_name, ' • ', department_id, ' | '
+    , CASE WHEN sales_2000 > sales_1999 THEN '+' ELSE '' END, ROUND(100.0 * (SAFE_DIVIDE(sales_2000, sales_1999) - 1), 1), '%') AS department_label_for_dashboard
+  , department_id
   , department_name
   , ROUND(100.0 * (SAFE_DIVIDE(sales_2000, sales_1999) - 1), 1) AS pct_growth
   , ROUND(sales_2000, 2) as sales_2000
   , ROUND(sales_1999, 2) as sales_1999
 FROM (
-  SELECT  
+  SELECT
     sales.department_id
     , d.description AS department_name
     , sales.year
