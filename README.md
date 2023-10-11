@@ -8,7 +8,7 @@
 <!-- -------------------------------------------------------------------------------------------------------------------------------------->
 <!-- Intro -->
 #  Growth Marketing
-🧐 __A/B Testing & GROWTH Analysis • 2023__
+🧐 __*A/B Testing & GROWTH Analysis • 2023*__
 
 This repository presents a Growth Marketing Analysis: A/B campaigns and Department Growth.  
 
