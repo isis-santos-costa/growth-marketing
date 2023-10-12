@@ -24,8 +24,7 @@ ___
 <!-- Body -->
 # Executive Summary
 
-[![growth-marketing-analysis](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/9c9b02bf-b944-4778-933a-144cad9397f8)](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000)
-
+[<img src='growth-marketing-analysis.png' />](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000)
 ___
 
 
