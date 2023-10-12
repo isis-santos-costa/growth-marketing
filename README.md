@@ -74,3 +74,25 @@ ___
 
 ___
 
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- Step 1 -->
+
+## Step 1 • Business question  
+
+The search in the A/B testing is for insight into the following question and its unfoldings:
+
+> <i> « Overall, which version generated better incremental results? » </i>  
+>> <i> « Did a particular version perform better for a particular set of customers? » </i>  
+>> <i> « What changes can be made to this marketing campaign in order to improve future results? » </i>  
+
+For departmental growth, the analysis aims at answering:
+
+> <i> « Overall, which Department grew the most from year to year? » </i>  
+> <i> « Are there any particular groups of customers that are showing notable shifts in their purchasing habits from year to year? » </i>  
+> <i> « Based on this data, what marketing efforts or strategies will reinforce positive trends or mitigate negative trends to grow future sales? » </i>  
+
+[↑](#contents)
+
+___
+
+
