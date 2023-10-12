@@ -95,4 +95,18 @@ For departmental growth, the analysis aims at answering:
 
 ___
 
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- Step 2 -->
+
+## Step 2 • Data collection  
+
+The data sets for the analysis were exported from a [spreadsheet](https://docs.google.com/spreadsheets/d/1H8AvUnwQO8APc5vr6cfUISoxNP9Sx38o/edit?usp=sharing&ouid=106534574815446903983&rtpof=true&sd=true) as csv files, with clear naming tidied up in `snake_case`:
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/79cbfec3-200e-4361-a808-d32bbf15a60c)
+
+The files were then loaded into BigQuery following the steps [presented in this repository](https://github.com/isis-santos-costa/kaggle-datasets-in-bigquery).
+
+[↑](#contents)
+
+___
 
