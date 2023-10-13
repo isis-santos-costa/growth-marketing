@@ -112,3 +112,61 @@ The files were then loaded into BigQuery following the steps [presented in this 
 
 ___
 
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- Step 3 -->
+
+## Step 3 • Data wrangling  
+
+**The A/B test at hand refers to a base of 110,000 customers.** The base was split into two exact halves, and the customers in each of them received one version of a marketing campaign, A or B.
+
+**Success** is measured in terms of the **revenue attributable to the campaing**, defined as the total value of purchases by the customer above what would have happened without the campaing, which is simulated by means of keeping a control group, a set of customers who are not exposed to the campaign.
+
+While the overall split between A and B has targeted the exact half of customers with each of the marketing campaign versions, data is not evenly splitted for some groups of customers, at the subset level. Thus, in order to enable performance comparisons at the customer subset level, data has to be standardized, with A/B revenues being scaled to emulate a 50/50.
+
+This is performed by multiplying the revenue by a factor calculated as 50 divided by the corresponding percentage of customers receiving that campaign version in the considered subset. For example, supposing in a certain subset **70% of customers were targeted with campaign A** and the other **30% with B**, the revenues would be **scaled to 50/50** as follows:
+
+<p align='center'> 
+  $standardized\_revenue_A = (revenue_A) × (50/70)$<br>
+  $standardized\_revenue_B = (revenue_B) × (50/30)$
+</p>
+
+Standardization was performed in three steps:  
+> (i)   Setting a **parameter** for the tolerance to deviation from 50/50  
+> (ii)  Calculating **standardizing factors** for customer subsets with unbalanced split  
+> (iii) **Standardizing** substsets of revenues  
+
+As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each step is presented below:
+
+### Parameter &nbsp; |&nbsp; % Tolerance to split unbalance in A/B testing
+```sql
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Parameter • % Tolerance to split unbalance in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+DECLARE pct_tolerance_to_split_unbalance FLOAT64 DEFAULT 5;
+```
+
+### Function 1 &nbsp;|&nbsp; Standardizing factor for subsets with unbalanced split in the A/B test
+```sql
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 1 • Standardizing factor for subsets with unbalanced split in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_factor(pct_customer FLOAT64, pct_tolerance_to_split_unbalance FLOAT64) AS (
+  CASE WHEN ABS(50 - pct_customer) > pct_tolerance_to_split_unbalance THEN (50 / pct_customer) ELSE 1 END
+);
+```
+
+### Function 2 &nbsp;|&nbsp; Standardized values
+```sql
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 2 • Standardized values (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_value(pct_customer FLOAT64, pct_tolerance_to_split_unbalance FLOAT64, original_value FLOAT64, level_id INT64) AS (
+  CASE WHEN level_id = 0 THEN NULL
+  ELSE std_factor(pct_customer, pct_tolerance_to_split_unbalance) * original_value END
+);
+```
+
+[↑](#contents)
+
+___
+
