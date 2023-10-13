@@ -102,7 +102,7 @@ ___
 
 The data sets for the analysis were exported from a [spreadsheet](https://docs.google.com/spreadsheets/d/1H8AvUnwQO8APc5vr6cfUISoxNP9Sx38o/edit?usp=sharing&ouid=106534574815446903983&rtpof=true&sd=true) as csv files, with clear naming tidied up in `snake_case`:
 
-![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/79cbfec3-200e-4361-a808-d32bbf15a60c)
+![csv-files](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/f7e24458-4fca-40fd-a1af-959a93d4356e)
 
 The files were then loaded into BigQuery following the steps [presented in this repository](https://github.com/isis-santos-costa/kaggle-datasets-in-bigquery).
 
