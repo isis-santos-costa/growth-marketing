@@ -35,7 +35,7 @@ ___
 
 [Step 1 • Business question](#step-1--business-question)  
 [Step 2 • Data collection](#step-2--data-collection)  
-[Step 3 • Data cleaning](#step-3--data-cleaning)  
+[Step 3 • Data wrangling](#step-3--data-wrangling)  
 [Step 4 • Analysis](#step-4--analysis)  
 [Step 5 • Synthesis](#step-5--synthesis)  
 
