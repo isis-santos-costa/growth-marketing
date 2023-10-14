@@ -640,6 +640,10 @@ ___
 
 ## Step 5 • Synthesis  
 
+The A/B testing assessment is summarized in the following image. **Version B** of the marketing campaign is identified as the **overall winning one**, with **version A being successful for some customer profiles**. It stands out that, although A had shown clear advantage in some subsets, it does not happen for segments. A remark is made here: all customers are classified into a segment, not all customers are classified into a profile. Segments are derived from data, based on transaction history. Profiles result from survey, being defined according to cusstomer demography and general traits.
+
+The practical result of the study is a **mapping of A/B preferences at the customer subset level**, as a tool to potencialize future results.
+
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/71473c11-2dba-4314-8359-f283fd94a7e7)
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/ff87fda4-b0b0-4821-bf68-b8153f6988d5)
