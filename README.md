@@ -58,11 +58,11 @@ ___
 
 ## Query structure  
 
-[Parameter &nbsp; |&nbsp; % Tolerance to split unbalance in A/B testing]()  
-[Function 1 &nbsp;|&nbsp; Standardizing factor for subsets with unbalanced split in the A/B test]()  
-[Function 2 &nbsp;|&nbsp; Standardized values]()  
-[Function 3 &nbsp;|&nbsp; Winning Campaign, considering Standardization]()  
-[Function 4 &nbsp;|&nbsp; Standardized % advantage of the Winning Campaign]()  
+[Parameter &nbsp; |&nbsp; % Tolerance to split unbalance in A/B testing](#parameter----tolerance-to-split-unbalance-in-ab-testing)  
+[Function 1 &nbsp;|&nbsp; Standardizing factor for subsets with unbalanced split in the A/B test](#function-1--standardizing-factor-for-subsets-with-unbalanced-split-in-the-ab-test)  
+[Function 2 &nbsp;|&nbsp; Standardized values](#function-2--standardized-values)  
+[Function 3 &nbsp;|&nbsp; Winning Campaign, considering Standardization](#function-3--winning-campaign-considering-standardization)  
+[Function 4 &nbsp;|&nbsp; Standardized % advantage of the Winning Campaign](#function-4--standardized--advantage-of-the-winning-campaign)  
 [CTE &nbsp;&nbsp;1 &nbsp;|&nbsp; Campaign results | Overall]()  
 [CTE &nbsp;&nbsp;2 &nbsp;|&nbsp; Campaign results | by Customer Segment]()  
 [CTE &nbsp;&nbsp;3 &nbsp;|&nbsp; Campaign results | by Customer Profile]()  
@@ -213,3 +213,26 @@ CREATE TEMPORARY FUNCTION std_pct_advantage(
 
 ___
 
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- Step 4 -->
+
+## Step 4 • Analysis  
+
+
+
+[↑](#contents)
+
+___
+
+<!---------------------------------------------------------------------------------------------------------------------------------------->
+<!-- Step 5 -->
+
+## Step 5 • Synthesis  
+
+
+
+[↑](#contents)
+
+___
+
+<!---------------------------------------------------------------------------------------------------------------------------------------->
