@@ -7,19 +7,19 @@
 
 <!-- -------------------------------------------------------------------------------------------------------------------------------------->
 <!-- Intro -->
-#  Growth marketing analysis (WIP)
+#  Growth marketing analysis  
 🧐 __*A/B Testing & GROWTH Analysis • 2023*__
 &nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Looker-Studio.png'   height=36 alt='Looker Studio'   valign='middle'></img>
 &nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Google-BigQuery.png' height=36 alt='Google BigQuery' valign='middle'></img>
 &nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/SQL.png'             height=36 alt='SQL'             valign='middle'></img>  
 
-This repository presents the **analysis of an A/B test**, and visually summarizes **departmental growth trends** for sales data of a hypothetical **retail store**. For A/B testing, revenues are compared following different marketing campaign versions sent to **a base of 110,000 customers**. For departmental growth analysis, **8,234 sales transactions** from two subsequent years are summarized using different **data visualization** approaches to (i) display the **department ranking** in terms of growth, year-over-year (YoY), (ii) **reveal large-scale shifts in purchasing habits** of subsets of customers, and (iii) **unveil overall trends across departments**, to be mitigated and to be boosted, **for future growth**.  
+This repository presents the **analysis of an A/B test**, and visually summarizes **departmental growth trends** for sales data of a hypothetical **retail store**. For A/B testing, revenues are compared following different marketing campaign versions sent to **a base of 110,000 customers**. For departmental growth analysis, **8,234 sales transactions** from two years of operations are summarized using different **data visualization** approaches to (i) display the **department ranking** in terms of growth, year-over-year (YoY), (ii) **reveal large-scale shifts in purchasing habits** of subsets of customers, and (iii) **unveil overall trends across departments**, to be mitigated and to be boosted, **for future growth**.  
 
-The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL code used in analyzing departmental growth are available in the repository directory, and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
+The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL codes used in analyzing departmental growth are available in the repository directory, and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
 
 Notes:  
 1 • For readability, code snippets along the text are collapsed by default. Please, click '**⏵**' to expand.  
-2 • A streamlined version of the A/B query (v.3.0) was later prepared, with half of the rows and the CTEs. It is available [here](campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:efedb7a9dfbc4c10a43f292f210d4ff2).
+2 • A streamlined version of the A/B query (v.3.0) was later prepared, available [here](campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:efedb7a9dfbc4c10a43f292f210d4ff2).
 
 Tags: `growth`, `analytics`, `ab-testing`  
 
@@ -37,7 +37,7 @@ ___
 
 ## Contents  
 
-[Step 1 • Business question](#step-1--business-question)  
+[Step 1 • Business questions](#step-1--business-questions)  
 [Step 2 • Data collection](#step-2--data-collection)  
 [Step 3 • Data wrangling](#step-3--data-wrangling)  
 [Step 4 • Analysis](#step-4--analysis)  
@@ -81,7 +81,7 @@ ___
 <!---------------------------------------------------------------------------------------------------------------------------------------->
 <!-- Step 1 -->
 
-## Step 1 • Business question  
+## Step 1 • Business questions  
 
 The search in the A/B testing is for insight into the following question and its unfoldings:
 
@@ -104,7 +104,7 @@ ___
 
 ## Step 2 • Data collection  
 
-The data sets for the analysis were exported from a [spreadsheet](https://docs.google.com/spreadsheets/d/1H8AvUnwQO8APc5vr6cfUISoxNP9Sx38o/edit?usp=sharing&ouid=106534574815446903983&rtpof=true&sd=true) into csv files, with naming tidied up in `snake_case`:
+The data set for the analysis was exported from a [spreadsheet](https://docs.google.com/spreadsheets/d/1H8AvUnwQO8APc5vr6cfUISoxNP9Sx38o/edit?usp=sharing&ouid=106534574815446903983&rtpof=true&sd=true) into csv files, with table names tidied up into `snake_case`:
 
 ![csv-files](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/f7e24458-4fca-40fd-a1af-959a93d4356e)
 
@@ -123,7 +123,7 @@ ___
 
 **The A/B test at hand refers to a base of 110,000 customers.** The base was split into two (almost) exact halves, and the customers in each of them received one version of a marketing campaign, A or B.
 
-**Success** is measured in terms of the **revenue attributable to the campaing**, defined as the total value of purchases by the customer above what would have happened without the campaing, which is simulated by means of keeping a control group, a set of customers who are not exposed to the campaign.
+**Success** of the initiative is measured in terms of the **revenue attributable to the campaing**, defined as the total value of purchases by the customer above what would have happened without the campaing, which is simulated by means of keeping a control group, a set of customers who are not exposed to the campaign.
 
 While the overall split between A and B has targeted the (almost) exact half of customers with each of the marketing campaign versions, data is not evenly splitted for some groups of customers, at the subset level. Thus, in order to enable performance comparisons at the customer subset level, data has to be standardized, with A/B revenues being scaled to emulate a 50/50.
 
@@ -132,16 +132,18 @@ This is performed by multiplying the revenue by a factor calculated as 50 divide
 <p align='center'> 
   $standardized\_revenue_A = (revenue_A) × (50/70)$<br>
   $standardized\_revenue_B = (revenue_B) × (50/30)$
-</p>
+</p><br>
 
-Standardization was performed as follows:  
+Standardization was implemented in the SQL code according to the following sequence:  
 > (i)   Setting a **parameter** for the tolerance to deviation from 50/50  
 > (ii)  Calculating **standardizing factors** for customer subsets with unbalanced split  
 > (iii) **Standardizing** substsets of revenues  
 > (iv)  Assessing the **winning campaign**, based on standardized revenues  
 > (v)   Calculating the **% standardized advantage** of the winning campaign  
 
-As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each step is presented below:  
+<br>
+
+As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each stage is presented below:  
 
 <details><summary>
     
@@ -764,29 +766,29 @@ ___
 
 ## Step 5 • Synthesis  
 
-The A/B testing assessment is summarized in the following image. **Version B** of the marketing campaign is identified as the **overall winning one**, with **version A being successful for some customer profiles**. It stands out that, although A had shown clear advantage in some subsets, it does not happen for segments. A remark is made here: all customers are classified into a segment, not all customers are classified into a profile. Segments are derived from data, based on transaction history. Profiles result from survey, being defined according to cusstomer demography and general traits.
+The A/B testing assessment is summarized in the following image. **Version B** of the marketing campaign is identified as the **overall winning one**, with **version A being successful for some customer profiles**. It stands out that, although A has shown clear advantage in some subsets, it does not happen for segments. A remark is made here: all customers are classified into a segment, not all customers are classified into a profile. Segments are derived from data, based on transaction history. Profiles result from survey, being defined according to cusstomer demography and general traits.
 
 The practical result of the study is a **mapping of A/B preferences at the customer subset level**, as a tool to potencialize future results.
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/71473c11-2dba-4314-8359-f283fd94a7e7)
 
-Regarding **departmental growth**, answer to th first question, on which department grew the most in the period, is presented in the image below. The horizontal axis in the chart was set to logarithmic, in order that growth is emphasized, rather than volumes. It can be seen that **'Boots' is the top performer**, in % growth. The colossal value, together with a relative small sales volume in the first year of the period, points out to a presumed recent introduction of the department.
+Regarding **departmental growth**, answer to the first question, on which department grew the most in the period, is presented in the image below. The horizontal axis in the chart was set to logarithmic, in order to emphasize growth, rather than volumes. It can be seen that **'Boots' is the top performer**, in % growth. The colossal value, together with a relative small sales volume in the first year of the period, points out to a presumed recent introduction of the department.
 
 Following it, the **second largest** increase in sales is observed for related department **'Boot Accessories'**.
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/ff87fda4-b0b0-4821-bf68-b8153f6988d5)
 
-A **breakdown** of **% growth by department and subset of customers** is presented in the picture below. The noticeable red region blooding into the green growth region to the left of the image, indicates a **risk of churning** of the key segments of **'Power Shoppers'** and **'Core Customers'**. For the subsets of profiles, **'City Slickers'**, **'Blue Collar Royalty'** and **'Normal Families'** present an overall concerning trend.
+A **breakdown** of **% growth by department and subset of customers** is presented in the picture below. The noticeable red region blooding into the green growth region on the left of the image indicates a **risk of churning** of the key segments of **'Power Shoppers'** and **'Core Customers'**. Regarding customer profiles, **'City Slickers'**, **'Blue Collar Royalty'** and **'Normal Families'** present an overall concerning trend.
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/d84e4331-ce12-45af-a9cc-b931c1e60db1)
 
-**Shifts in purchasing habits** can be observed from the chart below. The **left region records decreases in sales**, and **tones of gray** were attributed to the departments with most of their sales falling into this region, indicating their **trend towards vanishing**. Departments in this situation are 'Miscellaneous' (Misc), 'Women's Jeans', 'Beachwear', and 'Formalwear'. The colorful bars on the right side of the chart indicate positive sales, compared to the previous year, and reveal a **strong positive trend for thematic departments** of **'Boots'**, **'Boot Accesssories'**, and **'Cowboys' Hats'**.  
+**Shifts in purchasing habits** can be observed from the chart below. The **left region records decreases in sales**, and **tones of gray** were attributed to the departments with most of their sales falling into this region, indicating their **trend towards vanishing**. Departments in this situation are 'Miscellaneous' (Misc), 'Women's Jeans', 'Beachwear', and 'Formalwear'. The colorful bars on the right side of the chart indicate positive sales, compared to the previous year, and reveal a **strong positive trend for the thematic departments** of **'Boots'**, **'Boot Accesssories'**, and **'Cowboys' Hats'**.  
 
-The chart is a **powerful tool** for data-informed decision making, **concisely summarizing critical information** for strategic positioning. It can support, e.g., the definition of a plan to **recover and retain** the 'gray' departments, or to **go all-in** and reinforce with initiatives, campaigns, and visual identity **the observed thematic trend**.
+This delivrable presents itself as a **powerful tool** for data-informed decision making, **concisely summarizing critical information** for strategic positioning. It can support, e.g., the definition of a plan to **recover and retain** the 'gray' departments, or to **go all-in** and reinforce with initiatives, campaigns, and visual identity **the observed positive trend for thematic items**.
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/4b7e9b85-a3f4-4b8f-82b6-1c02ba2a551b)
 
-The study is summarized in the presentation [here](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000) and in the leaflet below:
+The entire study is summarized in the presentation [here](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000) and in the leaflet below:
 
 ![Growth marketing analysis](https://raw.githubusercontent.com/isis-santos-costa/growth-marketing/main/img/growth-marketing-analysis.png)
 
