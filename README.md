@@ -17,6 +17,7 @@ This repository presents the **analysis of an A/B test**, and visually summarize
 
 The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL code used in analyzing departmental growth are available in the repository directory, and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
 
+For readability, code snippets along the text are collapsed by default. Please, click '⏵' to expand.  
 
 Tags: `growth`, `analytics`, `ab-testing`  
 
@@ -140,15 +141,27 @@ Standardization was performed as follows:
 
 As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each step is presented below:  
 
+<details><summary>
+    
 ### Parameter &nbsp; |&nbsp; % Tolerance to split unbalance in A/B testing
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Parameter • % Tolerance to split unbalance in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 DECLARE pct_tolerance_to_split_unbalance FLOAT64 DEFAULT 5;
 ```
+</details>
 
+
+<details><summary>
+    
 ### Function 1 &nbsp;|&nbsp; Standardizing factor for subsets with unbalanced split in the A/B test
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Function 1 • Standardizing factor for subsets with unbalanced split in A/B testing (see details on comments to CTE 6 `a_vs_b_standardized`)
@@ -157,8 +170,15 @@ CREATE TEMPORARY FUNCTION std_factor(pct_customer FLOAT64, pct_tolerance_to_spli
   CASE WHEN ABS(50 - pct_customer) > pct_tolerance_to_split_unbalance THEN (50 / pct_customer) ELSE 1 END
 );
 ```
+</details>
+
+
+<details><summary>
 
 ### Function 2 &nbsp;|&nbsp; Standardized values
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Function 2 • Standardized values (see details on comments to CTE 6 `a_vs_b_standardized`)
@@ -168,8 +188,15 @@ CREATE TEMPORARY FUNCTION std_value(pct_customer FLOAT64, pct_tolerance_to_split
   ELSE std_factor(pct_customer, pct_tolerance_to_split_unbalance) * original_value END
 );
 ```
+</details>
+
+
+<details><summary>
 
 ### Function 3 &nbsp;|&nbsp; Winning Campaign, considering Standardization  
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Function 3 • Winning Campaign after Standardization (see details on comments to CTE 6 `a_vs_b_standardized`)
@@ -183,8 +210,15 @@ CREATE TEMPORARY FUNCTION std_win(pct_customer_A FLOAT64, pct_customer_B FLOAT64
            ELSE 'B | BOGO' END
 );
 ```
+</details>
+
+
+<details><summary>
 
 ### Function 4 &nbsp;|&nbsp; Standardized % advantage of the Winning Campaign  
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Function 4 • Standardized % advantage of Winning Campaign (see details on comments to CTE 6 `a_vs_b_standardized`)
@@ -208,6 +242,8 @@ CREATE TEMPORARY FUNCTION std_pct_advantage(
       - 1) AS INT64)
 );
 ```
+</details>
+
 
 [↑](#contents)
 
@@ -218,7 +254,12 @@ ___
 
 ## Step 4 • Analysis  
 
+<details><summary>
+
 ### CTE &nbsp;&nbsp;1 &nbsp;|&nbsp; Campaign results | Overall
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 1 • Results of campaigns A and B | Overall
@@ -251,8 +292,15 @@ WITH overall AS (
   GROUP BY campaign_version, campaign
 )
 ```
+</details>
+
+
+<details><summary>
 
 ### CTE &nbsp;&nbsp;2 &nbsp;|&nbsp; Campaign results | by Customer Segment
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 2 • Results of campaigns A and B | by Customer Segment
@@ -286,8 +334,15 @@ WITH overall AS (
   GROUP BY c.segment_id, segment_name, campaign_version, campaign
 )
 ```
+</details>
+
+
+<details><summary>
 
 ### CTE &nbsp;&nbsp;3 &nbsp;|&nbsp; Campaign results | by Customer Profile
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 3 • Results of campaigns A and B | by Customer Profile
@@ -322,8 +377,15 @@ WITH overall AS (
   GROUP BY c.profile_id, profile_name, campaign_version, campaign
 )
 ```
+</details>
+
+
+<details><summary>
 
 ### CTE &nbsp;&nbsp;4 &nbsp;|&nbsp; Campaign results | Overall & by Customer Segment & by Customer Profile | Long Table
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 4 • Long Table: Results of campaigns A and B | Overall & by Customer Segment & by Customer Profile
@@ -334,8 +396,15 @@ WITH overall AS (
   SELECT * FROM by_profile
 )
 ```
+</details>
 
-### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | Winning as per Net Revenue | showing also by other criteria | Wide Table
+
+<details><summary>
+
+### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | as per Net Revenue | showing also by other criteria | Wide Table
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 5 • Results of campaigns A and B | Winning Campaign defined by Net Revenue | Compared also by other criteria | Wide Table
@@ -421,8 +490,15 @@ WITH overall AS (
   )
 )
 ```
+</details>
 
-### CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table
+
+<details><summary>
+
+### CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 6 • Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | Compared also by other criteria | Wide Table
@@ -495,8 +571,15 @@ WITH overall AS (
   FROM a_vs_b_raw
 )
 ```
+</details>
 
-### CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total of STD values
+
+<details><summary>
+
+### CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total of STD values
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 7 • Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | with OVERALL total of STD values
@@ -554,8 +637,15 @@ WITH overall AS (
   FROM a_vs_b_standardized
 )
 ```
+</details>
 
-### CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total and % of STD values
+
+<details><summary>
+
+### CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total and % of STD values
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- CTE 8 • OUTPUT: Results of campaigns A and B | Winning Campaign defined by STANDARDIZED Net Revenue | with OVERALL total and % of STD values
@@ -614,8 +704,15 @@ WITH overall AS (
   FROM a_vs_b_std_w_overall
 )
 ```
+</details>
+
+
+<details><summary>
 
 ### Unit tests / Final query
+
+</summary>
+  
 ```sql
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Unit tests / Final query
@@ -630,6 +727,8 @@ WITH overall AS (
    SELECT * FROM a_vs_b               ORDER BY CASE WHEN level_of_analysis='overall' THEN 1 WHEN level_of_analysis='segment' THEN 2 ELSE 3 END, level_id;
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
+</details>
+
 
 [↑](#contents)
 
