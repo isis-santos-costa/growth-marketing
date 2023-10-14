@@ -17,7 +17,9 @@ This repository presents the **analysis of an A/B test**, and visually summarize
 
 The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL code used in analyzing departmental growth are available in the repository directory, and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
 
-For readability, code snippets along the text are collapsed by default. Please, click '⏵' to expand.  
+Notes:  
+1 • For readability, code snippets along the text are collapsed by default. Please, click '**⏵**' to expand.  
+2 • A streamlined version of the A/B query (v.3.0) was later prepared, with half of the rows and the CTEs. It is available [here](campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:efedb7a9dfbc4c10a43f292f210d4ff2).
 
 Tags: `growth`, `analytics`, `ab-testing`  
 
