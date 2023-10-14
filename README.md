@@ -130,12 +130,14 @@ This is performed by multiplying the revenue by a factor calculated as 50 divide
   $standardized\_revenue_B = (revenue_B) × (50/30)$
 </p>
 
-Standardization was performed in three steps:  
+Standardization was performed as follows:  
 > (i)   Setting a **parameter** for the tolerance to deviation from 50/50  
 > (ii)  Calculating **standardizing factors** for customer subsets with unbalanced split  
 > (iii) **Standardizing** substsets of revenues  
+> (iv)  Assessing the **winning campaign**, based on standardized revenues  
+> (v)   Calculating the **% standardized advantage** of the winning campaign  
 
-As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each step is presented below:
+As these calculations are performed multiple times along the query that generates the A/B testing analysis report, they were defined as temporary functions in [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2). The SQL code corresponding to each step is presented below:  
 
 ### Parameter &nbsp; |&nbsp; % Tolerance to split unbalance in A/B testing
 ```sql
@@ -163,6 +165,46 @@ CREATE TEMPORARY FUNCTION std_factor(pct_customer FLOAT64, pct_tolerance_to_spli
 CREATE TEMPORARY FUNCTION std_value(pct_customer FLOAT64, pct_tolerance_to_split_unbalance FLOAT64, original_value FLOAT64, level_id INT64) AS (
   CASE WHEN level_id = 0 THEN NULL
   ELSE std_factor(pct_customer, pct_tolerance_to_split_unbalance) * original_value END
+);
+```
+
+### Function 3 &nbsp;|&nbsp; Winning Campaign, considering Standardization  
+```sql
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 3 • Winning Campaign after Standardization (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_win(pct_customer_A FLOAT64, pct_customer_B FLOAT64, pct_tolerance_to_split_unbalance FLOAT64
+  , campaign_net_revenue_A FLOAT64, campaign_net_revenue_B FLOAT64, level_id INT64) AS (
+    CASE 
+      WHEN level_id = 0 THEN NULL
+      WHEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, level_id) > 
+           std_value(pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_B, level_id) THEN 'A | 99% Off' 
+           ELSE 'B | BOGO' END
+);
+```
+
+### Function 4 &nbsp;|&nbsp; Standardized % advantage of the Winning Campaign  
+```sql
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Function 4 • Standardized % advantage of Winning Campaign (see details on comments to CTE 6 `a_vs_b_standardized`)
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+CREATE TEMPORARY FUNCTION std_pct_advantage(
+  pct_customer_A FLOAT64, pct_customer_B FLOAT64, pct_tolerance_to_split_unbalance FLOAT64
+  , campaign_net_revenue_A FLOAT64, campaign_net_revenue_B FLOAT64
+  , original_value_A FLOAT64, original_value_B FLOAT64
+  , level_id INT64) AS (
+  CAST(100.0 * (
+      CASE 
+        WHEN std_win(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B, level_id) like 'A%'
+            THEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, original_value_A, level_id) 
+            ELSE std_value(pct_customer_B, pct_tolerance_to_split_unbalance, original_value_B, level_id) 
+            END / 
+      CASE 
+        WHEN std_win(pct_customer_A, pct_customer_B, pct_tolerance_to_split_unbalance, campaign_net_revenue_A, campaign_net_revenue_B, level_id) like 'B%'
+            THEN std_value(pct_customer_A, pct_tolerance_to_split_unbalance, original_value_A, level_id) 
+            ELSE std_value(pct_customer_B, pct_tolerance_to_split_unbalance, original_value_B, level_id) 
+            END 
+      - 1) AS INT64)
 );
 ```
 
