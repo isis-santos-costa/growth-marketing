@@ -377,6 +377,9 @@ WITH overall AS (
   GROUP BY c.profile_id, profile_name, campaign_version, campaign
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/5ff14c1f-8e34-4353-bbf2-2f3f38744805)
+
 </details>
 
 
@@ -396,6 +399,9 @@ WITH overall AS (
   SELECT * FROM by_profile
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/58cc0a25-b544-4d35-8c30-116a21a3c8ca)
+
 </details>
 
 
@@ -490,6 +496,9 @@ WITH overall AS (
   )
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/1f37c8ae-4135-404a-8470-4a3486c1be38)
+
 </details>
 
 
