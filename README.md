@@ -646,13 +646,25 @@ The practical result of the study is a **mapping of A/B preferences at the custo
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/71473c11-2dba-4314-8359-f283fd94a7e7)
 
+Regarding **departmental growth**, answer to th first question, on which department grew the most in the period, is presented in the image below. The horizontal axis in the chart was set to logarithmic, in order that growth is emphasized, rather than volumes. It can be seen that **'Boots' is the top performer**, in % growth. The colossal value, together with a relative small sales volume in the first year of the period, points out to a presumed recent introduction of the department.
+
+Following it, the **second largest** increase in sales is observed for related department **'Boot Accessories'**.
+
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/ff87fda4-b0b0-4821-bf68-b8153f6988d5)
+
+A **breakdown** of **% growth by department and subset of customers** is presented in the picture below. The noticeable red region blooding into the green growth region to the left of the image, indicates a **risk of churning** of the key segments of **'Power Shoppers'** and **'Core Customers'**. For the subsets of profiles, **'City Slickers'**, **'Blue Collar Royalty'** and **'Normal Families'** present an overall concerning trend.
 
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/d84e4331-ce12-45af-a9cc-b931c1e60db1)
 
+**Shifts in purchasing habits** can be observed from the chart below. The **left region records decreases in sales**, and **tones of gray** were attributed to the departments with most of their sales falling into this region, indicating their **trend towards vanishing**. Departments in this situation are 'Miscellaneous' (Misc), 'Women's Jeans', 'Beachwear', and 'Formalwear'. The colorful bars on the right side of the chart indicate positive sales, compared to the previous year, and reveal a **strong positive trend for thematic departments** of **'Boots'**, **'Boot Accesssories'**, and **'Cowboys' Hats'**.  
+
+The chart is a **powerful tool** for data-informed decision making, **concisely summarizing critical information** for strategic positioning. It can support, e.g., the definition of a plan to **recover and retain** the 'gray' departments, or to **go all-in** and reinforce with initiatives, campaigns, and visual identity **the observed thematic trend**.
+
 ![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/4b7e9b85-a3f4-4b8f-82b6-1c02ba2a551b)
 
-[<img src='img/growth-marketing-analysis.png' />](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000)
+The study is summarized in the presentation [here](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000) and in the leaflet below:
+
+![Growth marketing analysis](https://raw.githubusercontent.com/isis-santos-costa/growth-marketing/main/img/growth-marketing-analysis.png)
 
 [↑](#contents)
 
