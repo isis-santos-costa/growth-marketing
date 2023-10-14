@@ -72,7 +72,7 @@ ___
 [CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table](#cte-6--campaign-results--as-per-standardized-net-revenue--wide-table)  
 [CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total of STD values](#cte-7--campaign-results--as-per-standardized-net-revenue--overall-total)  
 [CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total and % of STD values](#cte-8--campaign-results--as-per-standardized-net-revenue--overall-total--)  
-[Unit tests / Final query]()  
+[Unit tests / Final query](#unit-tests--final-query)  
 
 ___
 
@@ -571,6 +571,8 @@ WITH overall AS (
   FROM a_vs_b_raw
 )
 ```
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/b20fcb1e-e788-4884-bbcb-1b47ee5bcf7b)
+
 </details>
 
 
@@ -637,6 +639,9 @@ WITH overall AS (
   FROM a_vs_b_standardized
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/7cfacc57-dc53-4ab7-912d-5bd0ae3ed012)
+
 </details>
 
 
@@ -704,6 +709,9 @@ WITH overall AS (
   FROM a_vs_b_std_w_overall
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/b93c2b92-db3c-4bfb-8363-43d3fb5ec563)
+
 </details>
 
 
