@@ -382,7 +382,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;4 &nbsp;|&nbsp; Campaign results | Overall & by Customer Segment & by Customer Profile | Long Table
+### CTE &nbsp;&nbsp;4 &nbsp;|&nbsp; Campaign results | Overall & by Segment & by Profile | Long Table
 
 </summary>
   
@@ -401,7 +401,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | as per Net Revenue | showing also by other criteria | Wide Table
+### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | as per Net Revenue | showing also other criteria | Wide Table
 
 </summary>
   
@@ -495,7 +495,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table
+### CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | Wide Table
 
 </summary>
   
@@ -576,7 +576,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total of STD values
+### CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total
 
 </summary>
   
@@ -642,7 +642,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total and % of STD values
+### CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | as per STANDARDIZED Net Revenue | OVERALL total + %
 
 </summary>
   
