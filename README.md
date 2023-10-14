@@ -119,11 +119,11 @@ ___
 
 ## Step 3 • Data wrangling  
 
-**The A/B test at hand refers to a base of 110,000 customers.** The base was split into two exact halves, and the customers in each of them received one version of a marketing campaign, A or B.
+**The A/B test at hand refers to a base of 110,000 customers.** The base was split into two (almost) exact halves, and the customers in each of them received one version of a marketing campaign, A or B.
 
 **Success** is measured in terms of the **revenue attributable to the campaing**, defined as the total value of purchases by the customer above what would have happened without the campaing, which is simulated by means of keeping a control group, a set of customers who are not exposed to the campaign.
 
-While the overall split between A and B has targeted the exact half of customers with each of the marketing campaign versions, data is not evenly splitted for some groups of customers, at the subset level. Thus, in order to enable performance comparisons at the customer subset level, data has to be standardized, with A/B revenues being scaled to emulate a 50/50.
+While the overall split between A and B has targeted the (almost) exact half of customers with each of the marketing campaign versions, data is not evenly splitted for some groups of customers, at the subset level. Thus, in order to enable performance comparisons at the customer subset level, data has to be standardized, with A/B revenues being scaled to emulate a 50/50.
 
 This is performed by multiplying the revenue by a factor calculated as 50 divided by the corresponding percentage of customers receiving that campaign version in the considered subset. For example, supposing in a certain subset **70% of customers were targeted with campaign A** and the other **30% with B**, the revenues would be **scaled to 50/50** as follows:
 
@@ -292,6 +292,9 @@ WITH overall AS (
   GROUP BY campaign_version, campaign
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/b5115261-f065-4bdf-8552-cd0bdde7c30f)
+
 </details>
 
 
@@ -334,6 +337,9 @@ WITH overall AS (
   GROUP BY c.segment_id, segment_name, campaign_version, campaign
 )
 ```
+
+![image](https://github.com/isis-santos-costa/growth-marketing/assets/58894233/fa500518-625e-406a-a408-2902445e9399)
+
 </details>
 
 
