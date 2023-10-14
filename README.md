@@ -64,14 +64,14 @@ ___
 [Function 2 &nbsp;|&nbsp; Standardized values](#function-2--standardized-values)  
 [Function 3 &nbsp;|&nbsp; Winning Campaign, considering Standardization](#function-3--winning-campaign-considering-standardization)  
 [Function 4 &nbsp;|&nbsp; Standardized % advantage of the Winning Campaign](#function-4--standardized--advantage-of-the-winning-campaign)  
-[CTE &nbsp;&nbsp;1 &nbsp;|&nbsp; Campaign results | Overall]()  
-[CTE &nbsp;&nbsp;2 &nbsp;|&nbsp; Campaign results | by Customer Segment]()  
-[CTE &nbsp;&nbsp;3 &nbsp;|&nbsp; Campaign results | by Customer Profile]()  
-[CTE &nbsp;&nbsp;4 &nbsp;|&nbsp; Campaign results | Overall & by Customer Segment & by Customer Profile | Long Table]()  
-[CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | Winning as per Net Revenue | showing also by other criteria | Wide Table]()  
-[CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table]()  
-[CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total of STD values]()  
-[CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total and % of STD values]()  
+[CTE &nbsp;&nbsp;1 &nbsp;|&nbsp; Campaign results | Overall](#cte-1--campaign-results--overall)  
+[CTE &nbsp;&nbsp;2 &nbsp;|&nbsp; Campaign results | by Customer Segment](#cte-2--campaign-results--by-customer-segment)  
+[CTE &nbsp;&nbsp;3 &nbsp;|&nbsp; Campaign results | by Customer Profile](#cte-3--campaign-results--by-customer-profile)  
+[CTE &nbsp;&nbsp;4 &nbsp;|&nbsp; Campaign results | Overall & by Customer Segment & by Customer Profile | Long Table](#cte-4--campaign-results--overall--by-segment--by-profile--long-table)  
+[CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | Winning as per Net Revenue | showing also by other criteria | Wide Table](#cte-5--campaign-results--as-per-net-revenue--wide-table)  
+[CTE &nbsp;&nbsp;6 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | showing also other criteria | Wide Table](#cte-6--campaign-results--as-per-standardized-net-revenue--wide-table)  
+[CTE &nbsp;&nbsp;7 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total of STD values](#cte-7--campaign-results--as-per-standardized-net-revenue--overall-total)  
+[CTE &nbsp;&nbsp;8 &nbsp;|&nbsp; Campaign results | Winning as per STANDARDIZED Net Revenue | with OVERALL total and % of STD values](#cte-8--campaign-results--as-per-standardized-net-revenue--overall-total--)  
 [Unit tests / Final query]()  
 
 ___
@@ -401,7 +401,7 @@ WITH overall AS (
 
 <details><summary>
 
-### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | as per Net Revenue | showing also other criteria | Wide Table
+### CTE &nbsp;&nbsp;5 &nbsp;|&nbsp; Campaign results | as per Net Revenue | Wide Table
 
 </summary>
   
