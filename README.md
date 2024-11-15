@@ -36,7 +36,10 @@ ___
 <!-- Body -->
 # Executive Summary
 
-[<img src='img/growth-marketing-analysis.png' />](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000)
+Click on the image below to see it full size, or [here](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000) to see it in slides.  
+
+![Growth marketing analysis](https://raw.githubusercontent.com/isis-santos-costa/growth-marketing/main/img/growth-marketing-analysis.png)
+<!-- [<img src='img/growth-marketing-analysis.png' />](https://docs.google.com/presentation/d/e/2PACX-1vT2yxVCsu9-GdrpG_4nMwfy12o2fSy7Lo31T8bFn3PI9Ic8AArolBb5uaBdZHwtF8L3aUkPv_ONVJCv/pub?start=true&loop=false&delayms=60000) -->
 ___
 
 <!---------------------------------------------------------------------------------------------------------------------------------------->
