@@ -13,12 +13,19 @@
 &nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Google-BigQuery.png' height=36 alt='Google BigQuery' valign='middle'></img>
 &nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/SQL.png'             height=36 alt='SQL'             valign='middle'></img>  
 
-This repository presents the **analysis of an A/B test**, and visually summarizes **departmental growth trends** for sales data of a hypothetical **retail store**. For A/B testing, revenues are compared following different marketing campaign versions sent to **a base of 110,000 customers**. For departmental growth analysis, **8,234 sales transactions** from two years of operations are summarized using different **data visualization** approaches to (i) display the **department ranking** in terms of growth, year-over-year (YoY), (ii) **reveal large-scale shifts in purchasing habits** of subsets of customers, and (iii) **unveil overall trends across departments**, to be mitigated and to be boosted, **for future growth**.  
+This repository presents the **analysis of an A/B test**, and visually summarizes **departmental growth trends** of a hypothetical **retail store**. 
 
-The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL codes used in analyzing departmental growth are available in the repository directory, and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
+In part one, **A/B testing**, revenues are compared following different marketing campaign versions sent to **a base of 110,000 customers**.  
+
+In the **departmental growth analysis**, part two, **8,000+ sales transactions** are summarized using different **data visualization** approaches to  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ( i ) display the **department ranking** in terms of growth, year-over-year (YoY),  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (ii&nbsp;) **reveal large-scale shifts in purchasing habits** of subsets of customers, and  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (iii) **unveil overall trends across departments**, to be mitigated and to be boosted, **for future growth**.  
+
+The detailed analysis of the A/B testing is presented below, as well as the final visualizations answering to business questions on departmental growth. The SQL codes used in analyzing departmental growth are available in the [repository directory](https://github.com/isis-santos-costa/growth-marketing/tree/main), and the one used in the A/B analysis (v.2.5.1) is available [here](https://github.com/isis-santos-costa/growth-marketing/blob/51b0ab7d7a5aef18f99a279130488e04b6bc50f7/campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:545353684b9a417e91434b62d2a23de2).  
 
 Notes:  
-1 • For readability, code snippets along the text are collapsed by default. Please, click '**⏵**' to expand.  
+1 • For readability, code snippets along the text are collapsed by default. Please, click on their titles (started with '**⏵**') to expand.  
 2 • A streamlined version of the A/B query (v.3.0) was later prepared, available [here](campaign_a_vs_b.sql) and on [BigQuery](https://console.cloud.google.com/bigquery?sq=223570122894:efedb7a9dfbc4c10a43f292f210d4ff2).
 
 Tags: `growth`, `analytics`, `ab-testing`  
