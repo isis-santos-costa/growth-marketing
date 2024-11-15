@@ -83,17 +83,19 @@ ___
 
 ## Step 1 • Business questions  
 
-The search in the A/B testing is for insight into the following question and its unfoldings:
+There are two parts in this analysis.
 
-> <i> « Overall, which version generated better incremental results? » </i>  
+Part one is an A/B test aimed at getting insight into the following question and its unfoldings:
+
+> <i> « Overall, which version of marketing campaign generated better incremental results? » </i>  
 >> <i> « Did a particular version perform better for a particular set of customers? » </i>  
->> <i> « What changes can be made to this marketing campaign in order to improve future results? » </i>  
+>> <i> « What changes can be made to the campaign in order to improve future results? » </i>  
 
-For departmental growth, the analysis aims at answering:
+Part two, on departmental growth, focuses at answering:
 
-> <i> « Overall, which Department grew the most from year to year? » </i>  
-> <i> « Are there any particular groups of customers that are showing notable shifts in their purchasing habits from year to year? » </i>  
-> <i> « Based on this data, what marketing efforts or strategies will reinforce positive trends or mitigate negative trends to grow future sales? » </i>  
+> <i> « Overall, which Department grew the most, year over year? » </i>  
+> <i> « Are there any particular groups of customers showing notable shifts in their purchasing habits from year to year? » </i>  
+> <i> « Based on this data, what marketing efforts or strategies will reinforce positive or mitigate negative trends in future sales growth? » </i>  
 
 [↑](#contents)
 
