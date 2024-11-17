@@ -9,9 +9,12 @@
 <!-- Intro -->
 #  Growth marketing analysis  
 🧐 __*A/B Testing & GROWTH Analysis • 2023*__
-&nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Looker-Studio.png'   height=36 alt='Looker Studio'   valign='middle'></img>
-&nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Google-BigQuery.png' height=36 alt='Google BigQuery' valign='middle'></img>
-&nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/SQL.png'             height=36 alt='SQL'             valign='middle'></img>  
+<br>
+<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Google-BigQuery.png' height=36 alt='Google BigQuery' valign='middle'></img>
+&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/SQL.png'             height=36 alt='SQL'             valign='middle'></img>&nbsp;&nbsp;<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/Looker-Studio.png'   height=36 alt='Looker Studio'   valign='middle'></img>  
+
+<br>
+<img src='https://github.com/isis-santos-costa/isis-santos-costa/blob/main/img/department-growth.gif'></img>
 
 This repository presents the **analysis of an A/B test**, and visually summarizes **departmental growth trends** of a hypothetical **retail store**. 
 
